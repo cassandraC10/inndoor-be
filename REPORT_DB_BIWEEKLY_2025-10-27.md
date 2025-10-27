@@ -58,7 +58,4 @@ Actions taken during this session (commands run):
 - `python manage.py migrate`
 - `pip install PyMySQL`
 
-If you'd like, I can now:
-- Create the MySQL database and user SQL snippet for local or cloud providers.
-- Run migrations against your MySQL instance if you provide `DATABASE_URL` or set it in `.env` and ask me to run them here.
-- Create a short git-ready commit message and commit the changes for you, then push to your remote if you'd like me to run that here.
+
