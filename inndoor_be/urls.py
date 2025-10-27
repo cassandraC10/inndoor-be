@@ -17,7 +17,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/', include('users.urls')),
+   # use singular `user` base path for auth endpoints (e.g. /api/user/register/)
+   path('api/user/', include('users.urls')),
 
 
     re_path(r'^docs(?P<format>\.json|\.yaml)$',

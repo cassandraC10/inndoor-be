@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -89,12 +90,45 @@ WSGI_APPLICATION = 'inndoor_be.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import urllib.parse as _urlparse
+
+# Database
+# If a DATABASE_URL environment variable is set (eg. postgres://user:pass@host:port/dbname)
+# parse and use it. Otherwise fall back to the default SQLite database used for local dev.
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    parsed_url = _urlparse.urlparse(DATABASE_URL)
+    scheme = parsed_url.scheme
+    db_name = parsed_url.path[1:]
+
+    if scheme.startswith('postgres') or scheme.startswith('postgresql'):
+        engine = 'django.db.backends.postgresql'
+    elif scheme.startswith('mysql'):
+        engine = 'django.db.backends.mysql'
+    else:
+        # default to sqlite if unknown scheme
+        engine = 'django.db.backends.sqlite3'
+
+    DATABASES = {
+        'default': {
+            'ENGINE': engine,
+            'NAME': db_name if engine != 'django.db.backends.sqlite3' else BASE_DIR / db_name,
+            'USER': parsed_url.username,
+            'PASSWORD': parsed_url.password,
+            'HOST': parsed_url.hostname,
+            'PORT': parsed_url.port or '',
+            # persistent connections (seconds). Adjust as needed.
+            'CONN_MAX_AGE': 600,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
